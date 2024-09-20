@@ -1,0 +1,73 @@
+using System;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+
+namespace c1
+{
+    public partial class Form2 : Form
+    {
+        public Form2()
+        {
+            InitializeComponent();
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            EnableBlur();
+        }
+
+        private void EnableBlur()
+        {
+            var accent = new ACCENT_POLICY();
+            accent.AccentState = ACCENT_STATE.ACCENT_ENABLE_BLURBEHIND;
+            var accentStructSize = Marshal.SizeOf(accent);
+
+            var accentPtr = Marshal.AllocHGlobal(accentStructSize);
+            Marshal.StructureToPtr(accent, accentPtr, false);
+
+            var data = new WINDOWCOMPOSITIONATTRIBDATA();
+            data.Attribute = WINDOWCOMPOSITIONATTRIB.WCA_ACCENT_POLICY;
+            data.SizeOfData = accentStructSize;
+            data.Data = accentPtr;
+
+            SetWindowCompositionAttribute(this.Handle, ref data);
+            Marshal.FreeHGlobal(accentPtr);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ACCENT_POLICY
+        {
+            public ACCENT_STATE AccentState;
+            public int AccentFlags;
+            public int GradientColor;
+            public int AnimationId;
+        }
+
+        public enum ACCENT_STATE
+        {
+            ACCENT_DISABLED = 0,
+            ACCENT_ENABLE_GRADIENT = 1,
+            ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+            ACCENT_ENABLE_BLURBEHIND = 3,
+            ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+            ACCENT_ENABLE_HOSTBACKDROP = 5,
+            ACCENT_ENABLE_INVALID_STATE = 6
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct WINDOWCOMPOSITIONATTRIBDATA
+        {
+            public WINDOWCOMPOSITIONATTRIB Attribute;
+            public IntPtr Data;
+            public int SizeOfData;
+        }
+
+        public enum WINDOWCOMPOSITIONATTRIB
+        {
+            WCA_ACCENT_POLICY = 19
+        }
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WINDOWCOMPOSITIONATTRIBDATA data);
+    }
+}
