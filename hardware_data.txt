@@ -1,1 +1,2 @@
-sdefdf
+username:motherboardserial:ssd
+1:07C5221_N71E635498:WD-WCC6Y0HZRSDY
